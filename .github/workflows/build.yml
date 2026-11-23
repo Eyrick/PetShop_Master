@@ -30,3 +30,6 @@ jobs:
           args: >
             -Dsonar.organization=eyrick
             -Dsonar.projectKey=Eyrick_PetShop_Master
+            -Dsonar.sources=.
+            -Dsonar.tests=tests
+            -Dsonar.python.version=3.11
