@@ -1,0 +1,20 @@
+{%extends "base.html"%}
+{% load static %}
+{% block title %}
+PetList
+{% endblock %}
+{% block content %}
+    {% for pet in pets %}
+    <a href= "{% url 'pet-detail' pet.id %}">
+          <ul>
+              <li>{{pet.name}}</li>
+              <li>{{pet.age}}</li>
+
+          </ul>
+
+      </a>
+      <li>
+        <a href="{% url 'delete-pet' pet_id=pet.id %}">Delete Pet :'( </a>
+      </li>
+      {% endfor %}
+      {% endblock %}
