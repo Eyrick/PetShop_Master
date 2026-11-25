@@ -23,7 +23,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # ---------------------------------------------------------------------------
 # Segurança
-# Checklist de deploy: https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+# Checklist do deploy: https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 # ---------------------------------------------------------------------------
 
 # Chave usada pelo Django para assinar sessões, cookies e tokens.
