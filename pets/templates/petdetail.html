@@ -1,18 +1,36 @@
 {% extends "base.html" %}
-{% block title %}
-Pet Detail
-{% endblock %}
+{% block title %}{{ pet.name }} | PetShop Master{% endblock %}
+
 {% block content %}
-    <ul>
-        <li>{{pet.name}}</li>
-        {% if pet.image %}
-        <img src="{{pet.image.url}}">
+  <div class="card shadow-sm mx-auto" style="max-width: 640px;">
+    {% if pet.image %}
+      <img src="{{ pet.image.url }}" class="card-img-top" alt="Foto de {{ pet.name }}" style="max-height: 360px; object-fit: cover;">
+    {% endif %}
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h1 class="h3 mb-0">{{ pet.name }}</h1>
+        {% if pet.available %}
+          <span class="badge badge-success">Disponível</span>
+        {% else %}
+          <span class="badge badge-secondary">Indisponível</span>
         {% endif %}
-        <li>{{pet.age}}</li>
-        <li>{{pet.available}}</li>
-        <li>{{pet.image}}</li>
-        <li>{{pet.price}}</li>
-    </ul>
-    <a href="{% url 'update-pet' pet_id=pet.id %}">Update</a>
-    <a href="{% url 'delete-pet' pet_id=pet.id  %}">Delete</a>
-  {% endblock %}
+      </div>
+
+      <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item px-0"><strong>Idade:</strong> {{ pet.age }} ano(s)</li>
+        <li class="list-group-item px-0"><strong>Preço:</strong> R$ {{ pet.price }}</li>
+      </ul>
+
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'pet-list' %}" class="btn btn-outline-secondary">Voltar</a>
+        <div class="d-flex">
+          <a href="{% url 'update-pet' pet_id=pet.id %}" class="btn btn-primary mr-2">Editar</a>
+          <form action="{% url 'delete-pet' pet_id=pet.id %}" method="POST" onsubmit="return confirm('Confirmar exclusão de {{ pet.name|escapejs }}?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Excluir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

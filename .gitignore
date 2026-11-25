@@ -1,1 +1,13 @@
+# Ambiente e segredos
 .env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django local
+db.sqlite3
+None/

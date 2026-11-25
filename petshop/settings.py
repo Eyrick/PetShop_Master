@@ -49,7 +49,6 @@ ALLOWED_HOSTS = [
 # ---------------------------------------------------------------------------
 
 INSTALLED_APPS = [
-    # Apps do Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,12 +57,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Apps de terceiros
     'crispy_forms',
+    'crispy_bootstrap4',
     # Apps do projeto
     'pets',
 ]
 
-# Tema usado pelo django-crispy-forms para renderizar formulários.
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap4'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -155,9 +157,6 @@ TIME_ZONE = 'UTC'
 
 # Habilita o sistema de tradução do Django.
 USE_I18N = True
-
-# Formata datas e números conforme a localidade.
-USE_L10N = True
 
 # Armazena datas/horas com fuso horário (recomendado).
 USE_TZ = True

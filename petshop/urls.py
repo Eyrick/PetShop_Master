@@ -13,21 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from pets import views
-from django.conf import settings
-from django.conf.urls.static import static
-
-
 
 urlpatterns = [
-    path('admin/', admin.site.urls ,name='abc'),
-    path('list/', views.pet_list , name = 'pet-list'),
-    path('detail/<int:pet_id>/', views.pet_detail , name = 'pet-detail'),
-    path('pets/create/',views.create_pet ,name='create-pet'),
-    path('pets/update/<int:pet_id>/',views.update_pet , name= 'update-pet'),
-    path('pets/delete/<int:pet_id>/',views.delete_pet , name= 'delete-pet'),
-
+    path('admin/', admin.site.urls),
+    path('', views.pet_list, name='home'),
+    path('list/', views.pet_list, name='pet-list'),
+    path('detail/<int:pet_id>/', views.pet_detail, name='pet-detail'),
+    path('pets/create/', views.create_pet, name='create-pet'),
+    path('pets/update/<int:pet_id>/', views.update_pet, name='update-pet'),
+    path('pets/delete/<int:pet_id>/', views.delete_pet, name='delete-pet'),
 ]
-urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

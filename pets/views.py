@@ -1,70 +1,57 @@
-from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import (
     require_GET,
     require_POST,
     require_http_methods,
 )
 
-from .models import Pet
 from .forms import PetForm
+from .models import Pet
 
 
 @require_GET
 def pet_list(request):
-    """Lista apenas os pets que estão disponíveis."""
-    petlist = []
-    for item in Pet.objects.all():
-        if item.available:
-            petlist.append(item)
-    context = {
-        "pets": petlist,
-    }
-    return render(request, 'petlist.html', context)
+    """Lista apenas os pets disponíveis."""
+    pets = Pet.objects.filter(available=True).order_by('name')
+    return render(request, 'petlist.html', {'pets': pets})
 
 
 @require_GET
 def pet_detail(request, pet_id):
-    """Exibe os detalhes de um pet."""
-    context = {
-        "pet": Pet.objects.get(id=pet_id),
-    }
-    return render(request, 'petdetail.html', context)
+    """Exibe os detalhes de um pet ou retorna 404."""
+    pet = get_object_or_404(Pet, id=pet_id)
+    return render(request, 'petdetail.html', {'pet': pet})
 
 
 @require_http_methods(["GET", "POST"])
 def create_pet(request):
-    """GET: mostra o formulário vazio. POST: valida e salva o novo pet."""
-    form = PetForm()
-    if request.method == "POST":
-        form = PetForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('pet-list')
-    context = {
-        "form": form,
-    }
-    return render(request, 'createpet.html', context)
+    """GET: formulário vazio. POST: valida e cria o pet."""
+    form = PetForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        pet = form.save()
+        messages.success(request, f'Pet "{pet.name}" cadastrado com sucesso.')
+        return redirect('pet-list')
+    return render(request, 'createpet.html', {'form': form})
 
 
 @require_http_methods(["GET", "POST"])
 def update_pet(request, pet_id):
-    """GET: mostra o formulário preenchido. POST: valida e atualiza o pet."""
-    pet = Pet.objects.get(id=pet_id)
-    form = PetForm(instance=pet)
-    if request.method == "POST":
-        form = PetForm(request.POST, request.FILES, instance=pet)
-        if form.is_valid():
-            form.save()
-            return redirect('pet-list')
-    context = {
-        "pet": pet,
-        "form": form,
-    }
-    return render(request, 'updatepet.html', context)
+    """GET: formulário preenchido. POST: valida e atualiza o pet."""
+    pet = get_object_or_404(Pet, id=pet_id)
+    form = PetForm(request.POST or None, request.FILES or None, instance=pet)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, f'Pet "{pet.name}" atualizado com sucesso.')
+        return redirect('pet-detail', pet_id=pet.id)
+    return render(request, 'updatepet.html', {'pet': pet, 'form': form})
 
 
 @require_POST
 def delete_pet(request, pet_id):
-    """Exclui um pet. Aceita apenas POST, pois altera dados."""
-    Pet.objects.get(id=pet_id).delete()
+    """Exclui um pet apenas via POST com proteção CSRF."""
+    pet = get_object_or_404(Pet, id=pet_id)
+    pet_name = pet.name
+    pet.delete()
+    messages.info(request, f'Pet "{pet_name}" removido.')
     return redirect('pet-list')
