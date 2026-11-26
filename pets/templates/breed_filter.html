@@ -1,0 +1,17 @@
+<script>
+(function () {
+ const category = document.getElementById('id_category');
+ const breed = document.getElementById('id_breed');
+ if (!category || !breed) return;
+ function filter() {
+  for (const option of breed.options) {
+   const valid = !option.value || option.dataset.category === category.value;
+   option.hidden = !valid;
+   option.disabled = !valid;
+   if (!valid && option.selected) breed.value = '';
+  }
+ }
+ category.addEventListener('change', filter);
+ filter();
+})();
+</script>

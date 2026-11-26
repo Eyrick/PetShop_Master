@@ -5,7 +5,8 @@ from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from PIL import Image, ImageDraw
 
-from pets.models import Pet
+from pets.models import Pet, Breed
+from pets.catalog import SEED_BREEDS
 
 SEED_PETS = [
     {
@@ -131,10 +132,11 @@ class Command(BaseCommand):
             self.stdout.write(f"Removidos {deleted} registro(s) antigo(s).")
 
         created_count = 0
-        for item in SEED_PETS:
+        for item, breed_name in zip(SEED_PETS, SEED_BREEDS):
             pet, created = Pet.objects.get_or_create(
                 name=item["name"],
                 defaults={
+                    "breed": Breed.objects.get(name=breed_name),
                     "age": item["age"],
                     "price": item["price"],
                     "available": item["available"],

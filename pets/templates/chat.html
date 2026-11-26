@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card card-body mx-auto" style="max-width:640px">
+<h1 class="h4">Chat com PetMaster — {{ pet.name }}</h1>
+{% for message in history %}<div class="border rounded p-2 mb-2"><strong>{% if message.from_shop %}PetMaster{% else %}Você{% endif %}</strong><p class="mb-0">{{ message.body|linebreaksbr }}</p></div>{% empty %}<p>Envie sua dúvida sobre o animal.</p>{% endfor %}
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary">Enviar</button></form>
+<a class="mt-2" href="{% url 'pet-chat' pet.id %}">Atualizar mensagens</a>
+<a href="{% url 'pet-detail' pet.id %}">Voltar</a>
+</div>{% endblock %}

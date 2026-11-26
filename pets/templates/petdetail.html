@@ -17,10 +17,12 @@
       </div>
 
       <ul class="list-group list-group-flush mb-4">
+        {% if pet.breed %}<li class="list-group-item px-0">Categoria: {{ pet.breed.category }} — Raça: {{ pet.breed }}</li>{% endif %}
         <li class="list-group-item px-0"><strong>Idade:</strong> {{ pet.age }} ano(s)</li>
         <li class="list-group-item px-0"><strong>Preço:</strong> R$ {{ pet.price }}</li>
       </ul>
 
+      <div class="mb-3"><a class="btn btn-outline-primary" href="{% url 'adoption' pet.id %}">Fila de adoção</a> <a class="btn btn-outline-primary" href="{% url 'pet-chat' pet.id %}">Chat com PetMaster</a></div>
       <div class="d-flex justify-content-between">
         <a href="{% url 'pet-list' %}" class="btn btn-outline-secondary">Voltar</a>
         <div class="d-flex">

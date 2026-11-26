@@ -8,8 +8,8 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from PIL import Image
 
-from .forms import PetForm
-from .models import Pet
+from .forms import ClassifiedPetForm as PetForm
+from .models import Pet, Breed, AdoptionRequest, ChatMessage
 
 
 def make_test_image(name="pet.png"):
@@ -30,6 +30,8 @@ class PetModelAndFormTest(TestCase):
         form = PetForm(
             data={
                 "name": "Maya",
+                "category": Breed.objects.get(name="Siamês").category_id,
+                "breed": Breed.objects.get(name="Siamês").pk,
                 "age": 1,
                 "description": "Filhote vacinada",
                 "available": True,
@@ -83,6 +85,8 @@ class PetViewsTest(TestCase):
                     reverse("create-pet"),
                     data={
                         "name": "Lola",
+                        "category": Breed.objects.get(name="Siamês").category_id,
+                        "breed": Breed.objects.get(name="Siamês").pk,
                         "age": 2,
                         "description": "Dócil",
                         "available": True,
@@ -106,6 +110,8 @@ class PetViewsTest(TestCase):
             url,
             data={
                 "name": "Bento Atualizado",
+                "category": Breed.objects.get(name="Siamês").category_id,
+                "breed": Breed.objects.get(name="Siamês").pk,
                 "age": 2,
                 "description": "Nova descrição",
                 "available": True,
@@ -144,3 +150,36 @@ class SeedCommandTest(TestCase):
 
                 call_command("seed_petshop", reset=True)
                 self.assertEqual(Pet.objects.count(), 8)
+
+class MaintenanceTest(TestCase):
+    def setUp(self):
+        self.pet = Pet.objects.create(name='Teste', price=10)
+
+    def test_incompatible_breed(self):
+        cat = Breed.objects.get(name='Siamês').category_id
+        dog = Breed.objects.get(name='Rottweiler')
+        form = PetForm(data={'name':'Teste', 'age':1, 'price':10, 'category':cat, 'breed':dog.pk})
+        self.assertFalse(form.is_valid())
+        self.assertIn('breed', form.errors)
+
+    def test_queue_and_duplicate(self):
+        from django.test import Client
+        url = reverse('adoption', args=[self.pet.pk])
+        data = {'name':'Primeiro', 'contact':'first@example.com'}
+        self.client.post(url, data)
+        self.client.post(url, data)
+        other = Client()
+        other.post(url, {'name':'Segundo', 'contact':'second@example.com'})
+        self.assertEqual(AdoptionRequest.objects.count(), 2)
+        self.assertContains(other.get(url), 'Posição na fila: 2')
+        AdoptionRequest.objects.first().delete()
+        self.assertContains(other.get(url), 'Posição na fila: 1')
+
+    def test_chat_isolation_and_reply(self):
+        from django.test import Client
+        url = reverse('pet-chat', args=[self.pet.pk])
+        self.client.post(url, {'body':'Pergunta privada'})
+        entry = ChatMessage.objects.get()
+        ChatMessage.objects.create(pet=self.pet, visitor=entry.visitor, body='Resposta', from_shop=True)
+        self.assertContains(self.client.get(url), 'Resposta')
+        self.assertNotContains(Client().get(url), 'Pergunta privada')
